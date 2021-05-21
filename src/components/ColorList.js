@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import axiosWithAuth from "../helpers/axiosWithAuth";
-import EditMenu from "./EditMenu";
+
 import Color from "./Color";
+import EditMenu from "./EditMenu";
+import { axiosWithAuth } from "../helpers/axiosWithAuth";
 
 const initialColor = {
   color: "",
   code: { hex: "" },
 };
 
-const ColorList = ({ colors, updateColors, getColors }) => {
+const ColorList = ({ colors, updateColors }) => {
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
 
@@ -17,28 +18,35 @@ const ColorList = ({ colors, updateColors, getColors }) => {
     setColorToEdit(color);
   };
 
+ 
   const saveEdit = (e) => {
     e.preventDefault();
     axiosWithAuth()
-      .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
+      .put(`/colors/${colorToEdit.id}`, colorToEdit)
       .then((res) => {
-        const editedColors = colors.filter((item) => item.id !== res.data.id);
-        updateColors([...editedColors, res.data]);
-        setEditing(false);
+        updateColors(
+          colors.map((color) => {
+            if (res.data.id === color.id) {
+              return res.data;
+            }
+            return color;
+          })
+        );
       })
       .catch((err) => {
-        console.error("COLOR LIST ERROR: " + err);
+        console.log(err);
       });
   };
 
+  
   const deleteColor = (color) => {
     axiosWithAuth()
-      .delete(`http://localhost:5000/api/colors/${color.id}`)
+      .delete(`/colors/${color.id}`)
       .then((res) => {
-        getColors();
+        updateColors(colors.filter((colorId) => colorId.id !== color.id));
       })
       .catch((err) => {
-        console.log("DELETION ERROR: " + err);
+        console.log(err);
       });
   };
 
@@ -70,7 +78,3 @@ const ColorList = ({ colors, updateColors, getColors }) => {
 };
 
 export default ColorList;
-
-//Task List:
-//1. Complete the saveEdit functions by making a put request for saving colors. (Think about where will you get the id from...)
-//2. Complete the deleteColor functions by making a delete request for deleting colors.

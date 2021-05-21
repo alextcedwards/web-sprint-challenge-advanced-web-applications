@@ -1,8 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import BubblePage from "./BubblePage";
-import ColorList from "./ColorList";
-import Bubbles from "./Bubbles";
 
 test("Renders BubblePage without errors", () => {
   // Finish this test
